@@ -47,8 +47,8 @@ def setup_logger(
     )
     file_handler.setFormatter(file_formatter)
 
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
+    # Console handler (Use stderr for MCP compatibility) donot use stdout
+    console_handler = logging.StreamHandler(sys.stderr)
     console_handler.setFormatter(console_formatter)
 
     # Add handlers
