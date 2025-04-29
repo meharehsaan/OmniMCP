@@ -4,11 +4,7 @@ env = Env()
 env.read_env()
 
 
-class Config(object):
-    DEBUG = False
-    TESTING = False
-
-class DevelopmentConfig(Config):
+class DevConfig(object):
     DEBUG = True
     TESTING = True
 

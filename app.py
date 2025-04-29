@@ -5,15 +5,15 @@ from google import genai
 from mcp import ClientSession
 from google.genai import types
 from utils import setup_logger
-from config import DevelopmentConfig
+from config import DevConfig
 from fastapi import Request, Response
 from mcp.client.stdio import stdio_client, StdioServerParameters
 
 logging = setup_logger(__name__)
 
 # ---- CONFIG ----
-API_KEY = DevelopmentConfig.GEMINI_API_KEY
-MODEL_ID = DevelopmentConfig.GEMINI_MODEL_ID
+API_KEY = DevConfig.GEMINI_API_KEY
+MODEL_ID = DevConfig.GEMINI_MODEL_ID
 
 
 def mcp_to_genai_tool(mcp_tool):
@@ -152,9 +152,9 @@ async def main(message: cl.Message):
 def auth_callback(username: str, password: str):
     # Fetch the user matching username from your database
     # and compare the hashed password with the value stored in the database
-    if (username, password) == (DevelopmentConfig.USER, DevelopmentConfig.PASSWORD):
+    if (username, password) == (DevConfig.USER, DevConfig.PASSWORD):
         return cl.User(
-            identifier=DevelopmentConfig.USER, metadata={"role": "Admin", "provider": "credentials"}
+            identifier=DevConfig.USER, metadata={"role": "Admin", "provider": "credentials"}
         )
     else:
         return None
