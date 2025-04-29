@@ -1,0 +1,9 @@
+chainlit
+google-genai
+mcp
+fastapi
+requests
+beautifulsoup4
+psutil
+environs
+colorlog
