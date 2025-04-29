@@ -4,8 +4,12 @@ import chainlit as cl
 from google import genai
 from mcp import ClientSession
 from google.genai import types
+from utils import setup_logger
 from config import DevelopmentConfig
+from fastapi import Request, Response
 from mcp.client.stdio import stdio_client, StdioServerParameters
+
+logging = setup_logger(__name__)
 
 # ---- CONFIG ----
 API_KEY = DevelopmentConfig.GEMINI_API_KEY
@@ -26,6 +30,7 @@ async def start():
     await msg.send()
 
     try:
+        # Use async client
         client_genai = genai.Client(api_key=API_KEY, http_options={'api_version': 'v1alpha'})
         cl.user_session.set("client_genai", client_genai)
 
@@ -89,8 +94,8 @@ async def main(message: cl.Message):
 
     try:
         while True:
-            # Generate content from Gemini
-            response = client_genai.models.generate_content(
+            # Generate content from Gemini (using async aio client)
+            response = await client_genai.aio.models.generate_content(
                 model=MODEL_ID,
                 contents=gemini_history,
                 config=types.GenerateContentConfig(
@@ -113,28 +118,28 @@ async def main(message: cl.Message):
                     await final_answer.send()
                 break
 
-            # Execute Tool Calls
-            tool_responses = []
+            # Execute Tool Calls in parallel
+            tool_tasks = []
+            tool_names = []
+
             for fc in function_calls:
-                # Safely handle arguments
                 args_dict = fc.args if isinstance(fc.args, dict) else dict(fc.args) if fc.args else {}
+                tool_names.append(fc.name)
                 
-                async with cl.Step(name=fc.name, type="tool") as step:
-                    step.input = args_dict
-                    
-                    # Execute the tool on our MCP session
-                    result = await mcp_session.call_tool(fc.name, args_dict)
-                    
-                    # Store result for the model
-                    output_str = str(result.content)
-                    step.output = output_str
-                    
-                    tool_responses.append(
-                        types.Part.from_function_response(
-                            name=fc.name,
+                async def run_tool(name, args):
+                    async with cl.Step(name=name, type="tool") as step:
+                        step.input = args
+                        result = await mcp_session.call_tool(name, args)
+                        output_str = str(result.content)
+                        step.output = output_str
+                        return types.Part.from_function_response(
+                            name=name,
                             response={'result': output_str}
                         )
-                    )
+                
+                tool_tasks.append(run_tool(fc.name, args_dict))
+            
+            tool_responses = await asyncio.gather(*tool_tasks)
             
             # Add tool results to history and loop back to model
             gemini_history.append(types.Content(role="tool", parts=tool_responses))
