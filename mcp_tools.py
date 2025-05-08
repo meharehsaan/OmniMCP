@@ -7,7 +7,7 @@ import psutil
 from bs4 import BeautifulSoup
 from datetime import datetime
 from utils import setup_logger
-from config import DevelopmentConfig
+from config import DevConfig
 from mcp.server.fastmcp import FastMCP
 
 # Initialize logger (configured to use stderr in utils/logger.py)
@@ -15,7 +15,7 @@ logging = setup_logger(__name__)
 
 mcp = FastMCP("Advanced Multi Local Tool Server")
 
-PATH = DevelopmentConfig.FILES_PATH
+PATH = DevConfig.FILES_PATH
 TODO_FILE = os.path.join(os.getcwd(), "todo.txt")
 
 # ---- SYSTEM & OS TOOLS ----
