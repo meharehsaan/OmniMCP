@@ -8,7 +8,7 @@ node_modules/
 dist/
 tmp/
 temp/
-.chainlit
+
 
 *.env
 
