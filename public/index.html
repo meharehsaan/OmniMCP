@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="OmniMCP enterprise local AI workspace" />
+  <meta name="color-scheme" content="dark light" />
+  <title>OmniMCP</title>
+  <link rel="icon" href="/public/logo_mark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/public/styles.css" />
+</head>
+
+<body>
+  <main id="login-view" class="login-view" hidden>
+    <div class="login-atmosphere" aria-hidden="true"></div>
+    <div class="login-shell">
+      <section class="login-intro" aria-label="OmniMCP overview">
+        <div class="product-lockup">
+          <img src="/public/logo_mark.svg" alt="" class="product-mark" />
+          <div>
+            <strong>OmniMCP</strong>
+            <span>Agentic workspace</span>
+          </div>
+        </div>
+        <div class="login-intro-copy">
+          <span class="overline">Private AI operations</span>
+          <h2>Reason locally.<br />Act deliberately.</h2>
+          <p>A controlled command center for Gemini, MCP tools, workspace files, and operational context.</p>
+        </div>
+        <div class="login-capabilities" aria-label="Workspace capabilities">
+          <span><i class="capability-light primary"></i>Local MCP tools</span>
+          <span><i class="capability-light secondary"></i>Agent activity</span>
+          <span><i class="capability-light primary"></i>Workspace isolation</span>
+        </div>
+      </section>
+
+      <section class="login-panel" aria-labelledby="login-title">
+        <div class="login-panel-heading">
+          <span class="overline">Secure local access</span>
+          <h1 id="login-title">Welcome back.</h1>
+          <p>Sign in to open your OmniMCP workspace.</p>
+        </div>
+        <form id="login-form" class="auth-form">
+          <label class="field">
+            <span>Username</span>
+            <input id="username" name="username" autocomplete="username" placeholder="Enter your username" required />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <div class="password-field">
+              <input id="password" name="password" type="password" autocomplete="current-password"
+                placeholder="Enter your password" required />
+              <button class="text-button" type="button" data-password-toggle="password"
+                aria-label="Show password">Show</button>
+            </div>
+          </label>
+          <p id="login-error" class="form-message error" role="alert"></p>
+          <button class="pill-button primary wide" type="submit">
+            <span>Open workspace</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </button>
+        </form>
+        <div class="security-note">
+          <span class="status-dot success"></span>
+          <span>Credentials and tool execution remain on this server.</span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <main id="app-view" class="app-shell" hidden>
+    <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+
+    <aside id="sidebar" class="workspace-sidebar" aria-label="Workspace navigation">
+      <header class="sidebar-top">
+        <button id="workspace-switcher" class="workspace-switcher" type="button" aria-expanded="false">
+          <img src="/public/logo_mark.svg" alt="" />
+          <span class="sidebar-label workspace-copy">
+            <strong>OmniMCP</strong>
+            <small>Local production</small>
+          </span>
+          <svg class="sidebar-label chevron" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m8 10 4 4 4-4" />
+          </svg>
+        </button>
+        <button id="sidebar-collapse" class="icon-pill desktop-only" type="button" aria-label="Collapse sidebar"
+          title="Collapse sidebar">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+        <button id="drawer-close" class="icon-pill mobile-only" type="button" aria-label="Close navigation">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
+
+      <div id="workspace-menu" class="workspace-menu" hidden>
+        <span class="workspace-menu-label">Current workspace</span>
+        <button type="button" class="workspace-option active">
+          <span class="workspace-option-mark">OM</span>
+          <span><strong>OmniMCP</strong><small>Local production</small></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m5 12 4 4L19 6" />
+          </svg>
+        </button>
+      </div>
+
+      <button id="new-chat" class="pill-button primary new-thread" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        <span class="sidebar-label">New thread</span>
+      </button>
+
+      <div class="thread-toolbar sidebar-label">
+        <span>Threads</span>
+        <button id="thread-filter" class="mini-pill" type="button" aria-label="Filter threads">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6h16M7 12h10M10 18h4" />
+          </svg>
+        </button>
+      </div>
+
+      <nav id="thread-list" class="thread-list sidebar-label" aria-label="Chat threads">
+        <section class="thread-group" data-thread-group="today">
+          <h2>Today</h2>
+          <div class="thread-items"></div>
+        </section>
+        <section class="thread-group" data-thread-group="yesterday" hidden>
+          <h2>Yesterday</h2>
+          <div class="thread-items"></div>
+        </section>
+        <section class="thread-group" data-thread-group="week" hidden>
+          <h2>Last 7 days</h2>
+          <div class="thread-items"></div>
+        </section>
+      </nav>
+
+      <div class="sidebar-actions">
+        <button id="export-chat" class="sidebar-action" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
+          </svg>
+          <span class="sidebar-label">Export conversation</span>
+        </button>
+        <button id="open-settings" class="sidebar-action" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19 12a7 7 0 0 0-.13-1.35l2-1.55-2-3.46-2.46 1A7 7 0 0 0 14 5.25L13.65 3h-4l-.35 2.25a7 7 0 0 0-2.41 1.39l-2.46-1-2 3.46 2 1.55A7 7 0 0 0 4.3 12c0 .46.04.91.13 1.35l-2 1.55 2 3.46 2.46-1a7 7 0 0 0 2.41 1.39L9.65 21h4l.35-2.25a7 7 0 0 0 2.41-1.39l2.46 1 2-3.46-2-1.55c.09-.44.13-.89.13-1.35Z" />
+          </svg>
+          <span class="sidebar-label">Settings</span>
+        </button>
+      </div>
+
+      <footer class="account-area">
+        <button id="account-trigger" class="account-tile" type="button" aria-expanded="false"
+          aria-controls="account-menu">
+          <span id="user-avatar" class="avatar">U</span>
+          <span class="account-copy sidebar-label">
+            <strong id="user-label">Local user</strong>
+            <small><span class="status-dot success"></span> Workspace connected</small>
+          </span>
+          <svg class="account-chevron sidebar-label" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m8 10 4 4 4-4" />
+          </svg>
+        </button>
+        <div id="account-menu" class="account-menu" hidden>
+          <div class="account-menu-user">
+            <span class="avatar avatar-small">U</span>
+            <span><strong id="account-menu-label">Local user</strong><small>Workspace connected</small></span>
+          </div>
+          <button id="logout" class="account-menu-action danger" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10 17l5-5-5-5M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            </svg>
+            <span>Log out</span>
+          </button>
+        </div>
+      </footer>
+    </aside>
+
+    <section class="conversation-stage">
+      <header class="stage-header">
+        <div class="stage-title-row">
+          <button id="drawer-open" class="icon-pill mobile-only" type="button" aria-label="Open navigation">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+          <div class="stage-title">
+            <div class="stage-eyebrow">
+              <span id="status-indicator" class="status-dot warning"></span>
+              <span id="status-line">Connecting</span>
+            </div>
+            <h1 id="conversation-title">New conversation</h1>
+          </div>
+        </div>
+        <div class="stage-actions">
+          <button id="quick-theme" class="icon-pill" type="button" aria-label="Toggle theme" title="Toggle theme">
+            <svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" />
+              <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+            </svg>
+            <svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z" />
+            </svg>
+          </button>
+          <button id="topbar-export" class="pill-button quiet desktop-only" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
+            </svg>
+            Export
+          </button>
+          <button id="context-toggle" class="pill-button quiet" type="button" aria-expanded="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 5h16v14H4zM14 5v14" />
+            </svg>
+            <span class="context-toggle-label desktop-only">Context</span>
+          </button>
+        </div>
+      </header>
+
+      <div id="messages" class="messages" aria-live="polite" aria-label="Conversation"></div>
+
+      <div class="composer-dock">
+        <form id="chat-form" class="composer">
+          <div class="composer-surface">
+            <textarea id="message-input" rows="1" maxlength="20000"
+              placeholder="Ask OmniMCP to reason, inspect, or act..." aria-label="Message OmniMCP" required></textarea>
+            <div class="composer-controls">
+              <div class="composer-tools">
+                <button class="composer-tool" type="button" data-composer-action="attach" aria-label="Attach file"
+                  title="Attach file">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="m20.5 11.5-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7l-9.6 9.6a2 2 0 0 1-2.8-2.8l8.9-8.9" />
+                  </svg>
+                </button>
+                <button class="composer-tool model-chip" type="button" data-composer-action="model"
+                  title="Current model">
+                  <span class="model-pulse"></span>
+                  Gemini
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m8 10 4 4 4-4" />
+                  </svg>
+                </button>
+                <button class="composer-tool" type="button" data-composer-action="tools" aria-label="Connected tools"
+                  title="Connected tools">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M14.7 6.3 17.7 3.3a4.2 4.2 0 0 1-5.4 5.4l-6.6 6.6a2.1 2.1 0 0 0 3 3l6.6-6.6a4.2 4.2 0 0 1 5.4-5.4l-3 3" />
+                  </svg>
+                </button>
+              </div>
+              <button id="send-button" class="pill-button primary send-button" type="submit" aria-label="Send message">
+                <span>Send</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 14-7-4 14-3-6-7-1Z" />
+                  <path d="m12 13 7-8" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </form>
+        <p class="composer-note">Local tools can modify workspace files. Review consequential actions.</p>
+      </div>
+    </section>
+
+    <aside id="context-panel" class="context-panel" aria-label="Dynamic context">
+      <header class="context-header">
+        <div>
+          <span class="overline">Dynamic context</span>
+          <h2>Agent activity</h2>
+        </div>
+        <button id="context-close" class="icon-pill" type="button" aria-label="Close context panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
+
+      <section class="context-section model-status-card">
+        <div class="context-section-title">
+          <span>Model state</span>
+          <span id="model-state-badge" class="state-badge ready">Ready</span>
+        </div>
+        <div class="model-status">
+          <span class="agent-orb"><span></span></span>
+          <div><strong>Gemini agent</strong><small id="model-state-detail">Awaiting instruction</small></div>
+        </div>
+      </section>
+
+      <section class="context-section">
+        <div class="context-section-title">
+          <span>Active tools & agents</span>
+          <span id="active-tool-count" class="count-badge">0</span>
+        </div>
+        <div id="active-tools" class="active-tools">
+          <div class="context-empty">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v18M3 12h18" />
+            </svg>
+            <span>No tools running</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="context-section reasoning-section">
+        <details id="reasoning-accordion" class="reasoning-accordion">
+          <summary>
+            <span><span class="reasoning-dot"></span> Extended thinking</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m8 10 4 4 4-4" />
+            </svg>
+          </summary>
+          <div class="reasoning-terminal">
+            <div class="terminal-line"><span>state</span><strong id="reasoning-state">idle</strong></div>
+            <div class="terminal-line"><span>tool rounds</span><strong id="tool-round-count">0</strong></div>
+            <div class="terminal-line"><span>context</span><strong id="context-message-count">0 messages</strong></div>
+            <p id="reasoning-detail">Reasoning details appear here while the agent works.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="context-section">
+        <div class="context-section-title"><span>Available capabilities</span></div>
+        <div id="available-tools" class="capability-list">
+          <span class="capability-chip">Loading tools...</span>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <dialog id="settings-dialog" class="settings-dialog">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div>
+          <span class="overline">Workspace preferences</span>
+          <h2>Settings</h2>
+        </div>
+        <button id="settings-close" class="icon-pill" type="button" aria-label="Close settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
+      <div class="settings-content">
+        <section class="settings-section">
+          <div>
+            <h3>Appearance</h3>
+            <p>Use dark, light, or your operating system preference.</p>
+          </div>
+          <div class="theme-options" role="radiogroup" aria-label="Theme">
+            <button type="button" data-theme-choice="dark">Dark</button>
+            <button type="button" data-theme-choice="light">Light</button>
+            <button type="button" data-theme-choice="system">System</button>
+          </div>
+        </section>
+        <section class="settings-section">
+          <div>
+            <h3>Conversation archive</h3>
+            <p>Download the visible thread as Markdown and JSON in a ZIP file.</p>
+          </div>
+          <button id="settings-export" class="pill-button quiet" type="button">Export ZIP</button>
+        </section>
+        <section class="settings-section password-section">
+          <div>
+            <h3>Change password</h3>
+            <p>The replacement is stored as a salted local hash.</p>
+          </div>
+          <form id="password-form" class="auth-form compact">
+            <label class="field"><span>Current password</span><input name="current_password" type="password"
+                autocomplete="current-password" required /></label>
+            <label class="field"><span>New password</span><input name="new_password" type="password" minlength="10"
+                autocomplete="new-password" required /></label>
+            <label class="field"><span>Confirm new password</span><input name="confirm_password" type="password"
+                minlength="10" autocomplete="new-password" required /></label>
+            <p id="password-message" class="form-message" role="status"></p>
+            <button class="pill-button primary" type="submit">Update password</button>
+          </form>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  <script src="/public/app.js" defer></script>
+</body>
+
+</html>
