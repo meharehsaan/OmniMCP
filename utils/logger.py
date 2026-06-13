@@ -2,11 +2,12 @@ import sys
 import logging
 import colorlog
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 # custom logger with colors
 def setup_logger(
     name: str = __name__,
-    log_file: str = "app.log",
+    log_file: str | None = None,
     level: int = logging.INFO,
 ) -> logging.Logger:
     # Define log colors
@@ -37,6 +38,10 @@ def setup_logger(
     # Prevent adding handlers multiple times
     if logger.handlers:
         return logger
+
+    if log_file is None:
+        module_name = name.rsplit(".", 1)[-1].replace("__main__", "app")
+        log_file = str(Path(__file__).resolve().parent.parent / f"{module_name}.log")
 
     # Rotating file handler
     file_handler = RotatingFileHandler(
