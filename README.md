@@ -1,111 +1,225 @@
-# OmniMCP Gemini Server
+<div align="center">
+  <img src="public/logo_mark.svg" alt="OmniMCP logo" width="88" height="88">
 
-A sophisticated local AI assistant that combines the power of **LLM** with the **Model Context Protocol**, all wrapped in a sleek **Chainlit** interface. This server allows Gemini to interact directly with your local system, perform file operations, manage tasks, and browse the web.
-OmniMCP (Because it connects to files, web, and system  further tools coming...)
+# OmniMCP
 
----
+**A secure, local AI workspace powered by Gemini and the Model Context Protocol.**
 
-## 🚀 Features
+Chat with an AI agent that can inspect files, manage workspace content, use local
+utilities, and retrieve public web pages through a controlled tool boundary.
 
-- **🧠 Advanced LLM**: Powered by Google Gemini for high quality reasoning and tool calling.
-- **🛠️ MCP Integration**: Uses Model Context Protocol to bridge the gap between the LLM and local tools.
-- **📂 File System Mastery**: List, read, write, and search files on your local machine.
-- **🌐 Web Exploration**: Fetch and summarize content from any URL.
-- **🖥️ System Monitoring**: Real time access to system health, OS info, and resource usage.
-- **✅ Task Management**: Built in TODO list manager to keep track of your goals.
-- **🔐 Secure Access**: Robust authentication layer to protect your server.
-
----
-
-## 🛠️ Tools & Functionalities
-
-The server exposes several tools that Gemini can call autonomously:
-
-| Category | Tools | Description |
-| :--- | :--- | :--- |
-| **System** | `get_current_time`, `get_system_info` | Get system time and hardware/OS statistics. |
-| **File Ops** | `list_directory`, `read_file`, `write_file`, `delete_path` | Complete file management capabilities. |
-| **Search** | `search_in_files` | Grep-like search across files in a directory. |
-| **Tasks** | `add_todo`, `list_todos`, `clear_todos` | Manage a persistent `todo.txt` list. |
-| **Web** | `fetch_web_summary` | Extract text content and summaries from URLs. |
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![MCP](https://img.shields.io/badge/Protocol-MCP-7C3AED)](https://modelcontextprotocol.io/)
+[![License](https://img.shields.io/badge/License-MIT-111827)](LICENSE)
+</div>
 
 ---
 
-## 📋 Prerequisites
+## What Is OmniMCP?
 
-- **Python**: 3.10 or higher.
-- **Gemini API Key**: Obtain one from the [Google AI Studio](https://aistudio.google.com/).
-- **Internet Connection**: Required for Gemini API and web-based tools.
+OmniMCP is a self hosted AI assistant built for people who want useful local
+automation without giving an agent unrestricted access to their machine.
 
----
+It combines a responsive custom web interface, a FastAPI application server,
+Google Gemini, and an isolated MCP tool process. Filesystem operations are
+restricted to one configured workspace, destructive actions require explicit
+approval, and authenticated sessions remain on the server.
 
-## ⚙️ Setup & Installation
+The interface is implemented with plain HTML,
+CSS, and JavaScript so it remains lightweight and easy to customize.
 
-Follow these steps to get your MCP server up and running:
+## Highlights
 
-### 1. Clone the Repository
+- **Local workspace**: File tools cannot leave the configured `FILES_PATH`.
+- **Controlled agent actions**: Writes, deletions, and todo clearing require
+  browser approval before execution.
+- **Modern chat interface**: Responsive navigation, collapsible context panel,
+  archived conversations, syntax friendly responses, and tool activity.
+- **Dark, light, and system themes**: Theme preferences persist in the browser.
+- **Conversation management**: Rename, delete, archive, and export conversations
+  as Markdown and JSON inside a ZIP file.
+- **Secure authentication**: Signed HTTP-only cookies, login throttling,
+  same-origin validation, and salted PBKDF2 password hashes.
+- **Safer web access**: Public HTTP and HTTPS retrieval with redirect limits,
+  response-size limits, private-network blocking, and DNS pinning.
+- **No frontend build step**: Run the FastAPI server and open the application.
+
+## Interface
+
+The application is organized around three focused areas:
+
+1. **Workspace sidebar** for conversations, settings, export, and account actions.
+2. **Conversation stage** for messages, Markdown responses, code, and tool status.
+3. **Context panel** for model state, available tools, and active agent work.
+
+The layout adapts to desktop, tablet, and mobile screens. On smaller displays,
+the navigation and context panels become dismissible drawers.
+
+## Included Tools
+
+| Tool                | Capability                                              |
+|---------------------|---------------------------------------------------------|
+| `get_current_time`  | Return the server's local date, time, and timezone      |
+| `get_system_info`   | Inspect basic OS, CPU, memory, and workspace disk usage |
+| `list_directory`    | List files and directories inside the workspace         |
+| `read_file`         | Read a size-limited UTF-8 text file                     |
+| `write_file`        | Create or overwrite a workspace file after approval     |
+| `delete_path`       | Delete a workspace file or directory after approval     |
+| `search_in_files`   | Search text across workspace files                      |
+| `add_todo`          | Add an item to the workspace todo list                  |
+| `list_todos`        | Display the current todo list                           |
+| `clear_todos`       | Clear the todo list after approval                      |
+| `fetch_web_summary` | Extract readable text from a public HTTP or HTTPS page  |
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser["Custom Web UI"] <-->|HTTP + WebSocket| API["FastAPI Server"]
+    API <-->|Gemini API| Gemini["Google Gemini"]
+    API <-->|MCP over stdio| MCP["Local MCP Server"]
+    MCP --> Workspace["Restricted Workspace"]
+    MCP --> System["Local Utilities"]
+    MCP --> Web["Validated Public Web"]
+```
+
+Each authenticated application session receives its own Gemini history and MCP
+client session. The MCP server runs as a separate child process and exposes only
+the tools defined in `mcp_tools.py`.
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10 or newer
+- A [Google Gemini API key](https://aistudio.google.com/app/api-keys)
+- Internet access for Gemini and optional public web retrieval
+
+### 1. Clone the repository
+
 ```bash
 git clone https://github.com/meharehsaan/OmniMCP.git
 cd OmniMCP
 ```
 
-### 2. Install Dependencies
+### 2. Create a virtual environment
+
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-### 3. Configure Environment Variables
-Copy the `.env.example` to a new file named `.env`:
+On Windows PowerShell:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+### 3. Install dependencies
+
+```bash
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
+```
+
+### 4. Configure the environment
+
 ```bash
 cp .env.example .env
+python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
-Edit the `.env` file with your credentials:
+
+Add the generated value as `AUTH_SECRET`, then configure `.env`:
+
 ```env
-# User Authentication
-USER=your_preferred_username
-PASSWORD=your_secure_password
+OMNIMCP_USER=admin
+PASSWORD=use-a-strong-password-of-10-or-more-characters
+AUTH_SECRET=your-generated-random-secret
 
-# Gemini Configuration
-GEMINI_API_KEY=your_google_gemini_api_key
-GEMINI_MODEL_ID=gemini-2.0-flash-exp
+GEMINI_MODEL_ID=gemini-3.5-flash
+GEMINI_API_KEY=your-gemini-api-key
 
-# Chainlit Auth Secret
-CHAINLIT_AUTH_SECRET=your_generated_secret_key
+FILES_PATH=./workspace
+COOKIE_SECURE=false
 ```
 
-#### 🔑 Generating `CHAINLIT_AUTH_SECRET`
-This secret is used to sign the session cookies. You can generate a secure one by running:
-```bash
-chainlit create-secret
-```
-Then copy the output into your `.env` file.
-
----
-
-## 🏃 Running the Application
-
-Start the Chainlit server with the following command:
+### 5. Start OmniMCP
 
 ```bash
-chainlit run app.py -w
+python3 -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
-- The `-w` flag enables auto-reload, which is useful during development.
-- Once started, navigate to `http://localhost:8000` (or the port shown in your terminal).
-- **Login** using the `USER` and `PASSWORD` you defined in your `.env` file.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and sign in using the
+credentials from `.env`.
 
----
+For development with automatic reload:
 
-## 🤝 Contributing
+```bash
+python3 -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+```
 
-Contributions are welcome! If you have a cool tool idea or found a bug, feel free to open an issue or submit a pull request.
+## Security Model
 
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+OmniMCP is designed for local use and applies several defensive controls:
 
----
+- Session identifiers are random, HMAC-signed, HTTP-only, and `SameSite=Strict`.
+- Login attempts are rate-limited by client address.
+- State-changing HTTP requests and WebSockets are checked for same-origin use.
+- Password changes are stored as salted PBKDF2 hashes with restricted file
+  permissions and invalidate other active sessions.
+- Filesystem paths are resolved and checked against `FILES_PATH`, including
+  symlink-aware deletion handling.
+- Destructive or modifying tools require explicit confirmation in the browser.
+- Web retrieval rejects credentials in URLs, non-HTTP schemes, private and
+  reserved addresses, oversized responses, and excessive redirects.
+- Security headers include CSP, frame protection, MIME sniffing protection, and
+  a restrictive permissions policy.
+
+For local use, keep the server bound to `127.0.0.1`. If you expose OmniMCP to a
+network, place it behind a properly configured HTTPS reverse proxy and set:
+
+```env
+COOKIE_SECURE=true
+```
+
+## Password Management
+
+The password in `.env` is used until it is changed from **Settings**. After a
+change, OmniMCP stores only a salted hash in `.omnimcp_auth.json`.
+
+To deliberately restore the password from `.env`, stop the server and remove
+`.omnimcp_auth.json` before starting it again.
+
+## Project Structure
+
+```text
+OmniMCP/
+├── app.py                 # FastAPI app, authentication, sessions, and Gemini loop
+├── config.py              # Environment configuration and validation
+├── mcp_tools.py           # Isolated local MCP tool server
+├── public/
+│   ├── index.html         # Application markup
+│   ├── app.js             # Chat, WebSocket, settings, and conversation behavior
+│   ├── styles.css         # Responsive dark/light interface
+│   └── logo_mark.svg      # Application mark
+├── utils/
+│   └── logger.py          # Console and rotating file logging
+├── .env.example           # Safe configuration template
+└── requirements.txt       # Python dependencies
+```
+
+## Contributing
+
+Issues and pull requests are welcome. Keep changes focused, preserve the local
+security boundary, and include verification steps for behavior that touches
+authentication, filesystem access, web retrieval, or tool execution.
+
+For larger changes, open an issue first to describe the use case and proposed
+approach.
+
+## License
+
+OmniMCP is available under the [MIT License](LICENSE).
 
 Built with ❤️ by [Ehsaan Mehar](https://github.com/meharehsaan)
