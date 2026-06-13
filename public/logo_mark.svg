@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">OmniMCP</title>
+  <defs>
+    <linearGradient id="g" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#315b4c"/>
+      <stop offset="1" stop-color="#1c3d34"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="58" height="58" rx="17" fill="url(#g)"/>
+  <path d="M20 23.5 32 16l12 7.5v17L32 48l-12-7.5v-17Z" fill="none" stroke="#f8f4ea" stroke-width="4" stroke-linejoin="round"/>
+  <path d="m20 24 12 8 12-8M32 32v16" fill="none" stroke="#d6b774" stroke-width="3.5" stroke-linejoin="round"/>
+</svg>

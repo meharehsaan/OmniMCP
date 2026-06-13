@@ -5,11 +5,18 @@
 
 # Node artifact files
 node_modules/
+.venv/
+venv/
 dist/
 tmp/
 temp/
+workspace/
+.omnimcp_auth.*
 
-
+# Local secrets. Keep the public template tracked.
+.env
+.env.*
+!.env.example
 *.env
 
 # Compiled Java class files
@@ -17,6 +24,7 @@ temp/
 
 # Compiled Python bytecode
 *.py[cod]
+__pycache__/
 
 # Log files
 *.log
@@ -52,4 +60,3 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
-

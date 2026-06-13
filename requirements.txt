@@ -1,9 +1,9 @@
-chainlit
+beautifulsoup4
+colorlog
+environs
+fastapi
 google-genai
 mcp
-fastapi
-requests
-beautifulsoup4
 psutil
-environs
-colorlog
+urllib3
+uvicorn[standard]
